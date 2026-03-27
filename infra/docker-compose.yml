@@ -1,0 +1,127 @@
+# ─── Glowzi Backend — Docker Compose ────────────────────────────
+# Usage:
+#   Dev (databases + Keycloak): docker compose up -d
+#   Full stack:                 docker compose --profile app up -d
+# ─────────────────────────────────────────────────────────────────
+
+services:
+  # ═══════════════════════════════════════════════════════════════
+  # KEYCLOAK — Identity Provider (OAuth2 / OIDC)
+  # ═══════════════════════════════════════════════════════════════
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    container_name: glowzi-keycloak
+    command: start-dev --import-realm
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HTTP_PORT: 9090
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./glowzi-realm.json:/opt/keycloak/data/import/glowzi-realm.json:ro
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/9090 && echo done"]
+      interval: 10s
+      timeout: 5s
+      start_period: 90s
+      retries: 15
+    restart: unless-stopped
+
+  # ═══════════════════════════════════════════════════════════════
+  # DATABASES (always started)
+  # ═══════════════════════════════════════════════════════════════
+  identity-db:
+    image: postgres:16-alpine
+    container_name: glowzi-identity-db
+    environment:
+      POSTGRES_DB: identity_db
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+    ports:
+      - "5433:5432"
+    volumes:
+      - identity_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d identity_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  catalog-db:
+    image: postgres:16-alpine
+    container_name: glowzi-catalog-db
+    environment:
+      POSTGRES_DB: catalog_db
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+    ports:
+      - "5434:5432"
+    volumes:
+      - catalog_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d catalog_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  booking-db:
+    image: postgres:16-alpine
+    container_name: glowzi-booking-db
+    environment:
+      POSTGRES_DB: booking_db
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+    ports:
+      - "5435:5432"
+    volumes:
+      - booking_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d booking_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ═══════════════════════════════════════════════════════════════
+  # APPLICATION SERVICES (profile: app)
+  # ═══════════════════════════════════════════════════════════════
+  identity-service:
+    profiles: ["app"]
+    build:
+      context: ../glowzi-identity-service
+      dockerfile: Dockerfile
+    container_name: glowzi-identity-service
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_HOST: identity-db
+      DB_PORT: 5432
+      DB_NAME: identity_db
+      DB_USER: app
+      DB_PASS: app
+      KEYCLOAK_BASE_URL: http://keycloak:9090
+      KEYCLOAK_ISSUER_URI: http://keycloak:9090/realms/glowzi
+      KEYCLOAK_REALM: glowzi
+      KEYCLOAK_CLIENT_ID: glowzi-app
+      KEYCLOAK_CLIENT_SECRET: glowzi-app-secret
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    depends_on:
+      identity-db:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 40s
+      retries: 3
+    restart: unless-stopped
+
+volumes:
+  identity_data:
+  catalog_data:
+  booking_data:

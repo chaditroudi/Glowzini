@@ -1,0 +1,94 @@
+{
+  "realm": "glowzi",
+  "enabled": true,
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": false,
+  "duplicateEmailsAllowed": true,
+  "sslRequired": "none",
+  "roles": {
+    "realm": [
+      { "name": "CUSTOMER", "description": "Salon customer" },
+      { "name": "PROVIDER", "description": "Salon / service provider" },
+      { "name": "ADMIN", "description": "Platform administrator" }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "glowzi-app",
+      "name": "Glowzi Application",
+      "enabled": true,
+      "publicClient": false,
+      "secret": "glowzi-app-secret",
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "serviceAccountsEnabled": false,
+      "redirectUris": ["*"],
+      "webOrigins": ["*"],
+      "protocol": "openid-connect",
+      "protocolMappers": [
+        {
+          "name": "realm-roles-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "roles",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "phone-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "phone",
+            "user.attribute": "phone",
+            "jsonType.label": "String"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "+966500000001",
+      "enabled": true,
+      "firstName": "Test Customer",
+      "attributes": {
+        "phone": ["+966500000001"]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Test1234",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["CUSTOMER"]
+    },
+    {
+      "username": "+966500000002",
+      "enabled": true,
+      "firstName": "Test Provider",
+      "attributes": {
+        "phone": ["+966500000002"]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Test1234",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["PROVIDER"]
+    }
+  ]
+}

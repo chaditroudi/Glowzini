@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DiffGenerationConfig">
+    <option name="sourceModelValue" value="glowzi-identity-service:entityManagerFactory" />
+    <option name="targetDbValue" value="d4dcf795-48da-4722-b295-6013d9cac098" />
+  </component>
+</project>

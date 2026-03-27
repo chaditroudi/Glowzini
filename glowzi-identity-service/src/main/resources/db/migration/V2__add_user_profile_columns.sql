@@ -1,0 +1,3 @@
+ALTER TABLE users ADD COLUMN full_name VARCHAR(100);
+ALTER TABLE users ADD COLUMN preferred_language VARCHAR(10);
+ALTER TABLE users ADD COLUMN updated_at TIMESTAMP;

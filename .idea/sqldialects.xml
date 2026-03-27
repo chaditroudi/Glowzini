@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SqlDialectMappings">
+    <file url="file://$PROJECT_DIR$/glowzi-booking-service/src/main/resources/db/migration/V1__init.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/glowzi-catalog-service/src/main/resources/db/migration/V1__init.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/glowzi-identity-service/persistence/V4__.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/glowzi-identity-service/src/main/resources/db/migration/V1__init.sql" dialect="PostgreSQL" />
+  </component>
+</project>

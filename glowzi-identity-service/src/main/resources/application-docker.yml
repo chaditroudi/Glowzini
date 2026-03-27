@@ -1,0 +1,39 @@
+# ─── Docker profile: used when running inside a container ────────
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:identity-db}:${DB_PORT:5432}/${DB_NAME:identity_db}
+    username: ${DB_USER:app}
+    password: ${DB_PASS:app}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://keycloak:8080/realms/glowzi}
+
+keycloak:
+  base-url: ${KEYCLOAK_BASE_URL:http://keycloak:8080}
+  realm: ${KEYCLOAK_REALM:glowzi}
+  client-id: ${KEYCLOAK_CLIENT_ID:glowzi-app}
+  client-secret: ${KEYCLOAK_CLIENT_SECRET:glowzi-app-secret}
+  admin:
+    username: ${KEYCLOAK_ADMIN_USER:admin}
+    password: ${KEYCLOAK_ADMIN_PASS:admin}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+logging:
+  pattern:
+    console: '{"time":"%d{ISO8601}","level":"%p","logger":"%logger{36}","msg":"%m","trace":"%X{traceId}","span":"%X{spanId}"}%n'

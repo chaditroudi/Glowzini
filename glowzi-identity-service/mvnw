@@ -1,0 +1,8 @@
+Day 1 :
+Java installed
+3 databases running
+all application.yml files set
+3 Flyway migrations created
+all 4 services boot
+all 4 health endpoints work
+booking-service has 1 unit test and 1 integration test skeleton

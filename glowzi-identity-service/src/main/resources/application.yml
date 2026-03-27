@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: identity-service
+  datasource:
+    url: jdbc:postgresql://localhost:5433/identity_db
+    username: app
+    password: app
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:9090/realms/glowzi
+
+server:
+  port: 8081
+
+# Keycloak Admin API config
+keycloak:
+  base-url: http://localhost:9090
+  realm: glowzi
+  client-id: glowzi-app
+  client-secret: glowzi-app-secret
+  admin:
+    username: admin
+    password: admin
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      show-details: when_authorized
+      probes:
+        enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
