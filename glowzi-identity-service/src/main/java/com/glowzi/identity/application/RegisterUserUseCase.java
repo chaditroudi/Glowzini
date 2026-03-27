@@ -28,11 +28,14 @@ public class RegisterUserUseCase {
 
     private final UserRepository userRepository;
     private final IdentityProviderService identityProvider;
+    private final DomainEventPublisher eventPublisher;
 
     public RegisterUserUseCase(UserRepository userRepository,
-                               IdentityProviderService identityProvider) {
+                               IdentityProviderService identityProvider,
+                               DomainEventPublisher eventPublisher) {
         this.userRepository = userRepository;
         this.identityProvider = identityProvider;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -69,10 +72,14 @@ public class RegisterUserUseCase {
                 command.preferredLanguage());
         User saved = userRepository.save(user);
 
-        // 5. Get token from identity provider
+        // 5. Publish domain events collected on the aggregate
+        eventPublisher.publishAll(saved.getDomainEvents());
+        saved.clearDomainEvents();
+
+        // 6. Get token from identity provider
         String token = identityProvider.authenticate(username, command.rawPassword());
 
-        // 6. Return
+        // 7. Return
         return new AuthResult(saved.getId(), saved.getRole().name(), token);
     }
 }

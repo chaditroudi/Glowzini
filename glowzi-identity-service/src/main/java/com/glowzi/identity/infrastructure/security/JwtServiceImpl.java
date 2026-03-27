@@ -18,15 +18,6 @@ public class JwtServiceImpl implements JwtService {
         this.keycloakUserService = keycloakUserService;
     }
 
-    @Override
-    public String generateToken(User user) {
-        // This method is no longer the primary way to get tokens.
-        // Tokens are obtained directly via KeycloakUserService.getToken() in the use cases.
-        // Kept for port contract compatibility.
-        throw new UnsupportedOperationException(
-                "Use KeycloakUserService.getToken() directly. "
-                + "Token generation is now handled by Keycloak.");
-    }
 
     /**
      * Obtains a Keycloak access token using username + password.
